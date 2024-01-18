@@ -31,8 +31,8 @@ namespace game {
 	};
 
 	using ParticleGroup = std::vector<Particle>;
-	/** start off with two groups only */
-	using ParticleGroups = std::array<ParticleGroup, 2>;
+	/** start off with three groups only */
+	using ParticleGroups = std::array<ParticleGroup, 3>;
 	
 	Particle particle_new(const Config& config, Color color);
 	void particle_render(const Particle& particle, const Config& config);
@@ -139,7 +139,7 @@ int main() {
 		.background = BLACK,
 		.particle_radius = 2,
 		.particles_per_group = 200,
-		.particle_velocity_factor = 0.07,
+		.particle_velocity_factor = 0.08,
 		.particle_action_distance = 75.0,
 	};
 
@@ -149,15 +149,20 @@ int main() {
 	game::ParticleGroups particle_groups;
 	game::particle_group_new(particle_groups[0], config, YELLOW);	
 	game::particle_group_new(particle_groups[1], config, RED);
+	game::particle_group_new(particle_groups[2], config, BLUE);
 
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 		{
 			ClearBackground(config.background);
 
+			/** create inter-group interactivity */
 			game::particle_groups_update(particle_groups[0], particle_groups[0], 0.02, config);
 			game::particle_groups_update(particle_groups[0], particle_groups[1], -0.3, config);
 			game::particle_groups_update(particle_groups[1], particle_groups[1], -0.02, config);
+			game::particle_groups_update(particle_groups[2], particle_groups[0], -0.1, config);
+			game::particle_groups_update(particle_groups[2], particle_groups[1], -0.5, config);
+			game::particle_groups_update(particle_groups[2], particle_groups[2], 0.02, config);
 
 			game::particle_groups_render(particle_groups, config);
 		}
