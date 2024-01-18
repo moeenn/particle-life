@@ -16,6 +16,9 @@ build: ${OBJ}
 	${CC} -c ${CFLAGS} $<
 	@mv ./*.o ${OUT_DIR}/
 
+fmt:
+	clang-format -i -style=Chromium ${SRC_DIR}/*.cpp ${SRC_DIR}/*.hpp
+
 run:
 	@${BINARY}
 
