@@ -14,11 +14,12 @@ namespace game {
 		uint particle_radius;
 		uint particles_per_group;
 		double particle_velocity_factor;
+		double particle_action_distance;
 	};
 
 	struct Particle {
 		Color color;
-		Vector2 position; // TODO: confirm x,y are doubles
+		Vector2 position;
 		double velocity_x;
 		double velocity_y;
 	};
@@ -91,7 +92,7 @@ void game::particle_groups_update(game::ParticleGroup &g_one, game::ParticleGrou
 			game::Particle* b = &g_two[j];
 
 			game::ParticleDistance distance = game::particle_distance(*a, *b);
-			if (distance.vector > 0 && distance.vector < 80.0) {
+			if (distance.vector > 0 && distance.vector < config.particle_action_distance) {
 				double force = gravity / distance.vector;
 				fx += force * distance.x_delta;
 				fy += force * distance.y_delta;
@@ -139,6 +140,7 @@ int main() {
 		.particle_radius = 2,
 		.particles_per_group = 200,
 		.particle_velocity_factor = 0.07,
+		.particle_action_distance = 75.0,
 	};
 
 	InitWindow(config.win_width, config.win_height, config.win_title);
