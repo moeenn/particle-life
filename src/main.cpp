@@ -5,6 +5,8 @@
 #include "raylib.h"
 
 namespace game {
+	const uint MAX_GROUPS = 3;
+	
 	struct Config {
 		uint win_height;
 		uint win_width;
@@ -30,9 +32,9 @@ namespace game {
 		double vector;
 	};
 
+	using InteractivityMatrix = double[MAX_GROUPS][MAX_GROUPS];
 	using ParticleGroup = std::vector<Particle>;
-	/** start off with three groups only */
-	using ParticleGroups = std::array<ParticleGroup, 3>;
+	using ParticleGroups = std::array<ParticleGroup, MAX_GROUPS>;
 	
 	Particle particle_new(const Config& config, Color color);
 	void particle_render(const Particle& particle, const Config& config);
@@ -40,6 +42,7 @@ namespace game {
 	void particle_group_new(std::vector<Particle> &particles, const Config& config, Color color);
 	void particle_groups_update(ParticleGroup &g_one, ParticleGroup &g_two, float gravity, const Config& config);
 	void particle_groups_render(ParticleGroups& groups, const Config& config);
+	void particle_groups_apply_interactivity(ParticleGroups& groups, const InteractivityMatrix& interactivity, const Config& config);
 	Vector2 get_random_position(uint height, uint width, uint radius);
 };
 
@@ -124,6 +127,15 @@ void game::particle_groups_render(game::ParticleGroups &groups, const game::Conf
 	}
 }
 
+
+void game::particle_groups_apply_interactivity(game::ParticleGroups& groups, const game::InteractivityMatrix& interactivity, const Config& config) {
+	for (uint i = 0; i < game::MAX_GROUPS; i++) {
+		for (uint j = 0; j < game::MAX_GROUPS; j++) {
+			game::particle_groups_update(groups[i], groups[j], interactivity[i][j], config);
+		}
+	}
+}
+
 Vector2 game::get_random_position(uint height, uint width, uint radius) {
 	float x = GetRandomValue(radius, width -radius);
 	float y = GetRandomValue(radius, height-radius);
@@ -132,14 +144,14 @@ Vector2 game::get_random_position(uint height, uint width, uint radius) {
 
 int main() {
 	game::Config config {
-		.win_height = 600,
-		.win_width = 1000,
+		.win_height = 450,
+		.win_width = 800,
 		.win_title = "Game",
 		.fps = 60,
 		.background = BLACK,
 		.particle_radius = 2,
-		.particles_per_group = 200,
-		.particle_velocity_factor = 0.08,
+		.particles_per_group = 300,
+		.particle_velocity_factor = 0.01,
 		.particle_action_distance = 75.0,
 	};
 
@@ -151,22 +163,20 @@ int main() {
 	game::particle_group_new(particle_groups[1], config, YELLOW);
 	game::particle_group_new(particle_groups[2], config, BLUE);
 
+	const game::InteractivityMatrix matrix{
+		/* red   yellow   blue */
+		{ 0.02,  -0.5,   -0.02 },  /* red */
+		{ 0.02,  -0.04,  -0.7  },  /* yellow */
+		{ 0.02,   0.02,   0.02 },  /* blue */
+	};
+
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 		{
 			ClearBackground(config.background);
-
-			/** create inter-group interactivity */
-			game::particle_groups_update(particle_groups[0], particle_groups[0], 0.02, config);
-			game::particle_groups_update(particle_groups[0], particle_groups[1], -0.5, config);
-			game::particle_groups_update(particle_groups[1], particle_groups[1], -0.04, config);
-			game::particle_groups_update(particle_groups[2], particle_groups[0], -0.02, config);
-			game::particle_groups_update(particle_groups[2], particle_groups[1], -0.7, config);
-			game::particle_groups_update(particle_groups[2], particle_groups[2], 0.02, config);
-
+			game::particle_groups_apply_interactivity(particle_groups, matrix, config);
 			game::particle_groups_render(particle_groups, config);
 		}
-
 		EndDrawing();		
 	}	
 
