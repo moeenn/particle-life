@@ -147,8 +147,8 @@ int main() {
 	SetTargetFPS(config.fps);
 
 	game::ParticleGroups particle_groups;
-	game::particle_group_new(particle_groups[0], config, YELLOW);	
-	game::particle_group_new(particle_groups[1], config, RED);
+	game::particle_group_new(particle_groups[0], config, RED);	
+	game::particle_group_new(particle_groups[1], config, YELLOW);
 	game::particle_group_new(particle_groups[2], config, BLUE);
 
 	while (!WindowShouldClose()) {
@@ -158,10 +158,10 @@ int main() {
 
 			/** create inter-group interactivity */
 			game::particle_groups_update(particle_groups[0], particle_groups[0], 0.02, config);
-			game::particle_groups_update(particle_groups[0], particle_groups[1], -0.3, config);
-			game::particle_groups_update(particle_groups[1], particle_groups[1], -0.02, config);
-			game::particle_groups_update(particle_groups[2], particle_groups[0], -0.1, config);
-			game::particle_groups_update(particle_groups[2], particle_groups[1], -0.5, config);
+			game::particle_groups_update(particle_groups[0], particle_groups[1], -0.5, config);
+			game::particle_groups_update(particle_groups[1], particle_groups[1], -0.04, config);
+			game::particle_groups_update(particle_groups[2], particle_groups[0], -0.02, config);
+			game::particle_groups_update(particle_groups[2], particle_groups[1], -0.7, config);
 			game::particle_groups_update(particle_groups[2], particle_groups[2], 0.02, config);
 
 			game::particle_groups_render(particle_groups, config);
